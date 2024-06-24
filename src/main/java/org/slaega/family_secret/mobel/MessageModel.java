@@ -12,7 +12,7 @@ import lombok.Data;
 @Entity
 @Table(name = "messages")
 @Data
-public class MessageMobel {
+public class MessageModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

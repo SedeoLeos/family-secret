@@ -24,7 +24,7 @@ public class MemberModel {
     @Column
     private DiscussionAccess access;
     @OneToMany
-    private List<MessageMobel> messages;
+    private List<MessageModel> messages;
     @ManyToOne
     private DiscussionModel discussion;
 }

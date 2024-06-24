@@ -23,5 +23,5 @@ public class DiscussionModel {
     @OneToMany
     private List<MemberModel> members;
     @OneToMany
-    private List<MessageMobel> messages;
+    private List<MessageModel> messages;
 }
