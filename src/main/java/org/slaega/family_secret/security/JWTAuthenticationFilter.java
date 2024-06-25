@@ -1,8 +1,7 @@
 package org.slaega.family_secret.security;
 
 import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,23 +15,23 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private  HandlerExceptionResolver handlerExceptionResolver;
-    @Autowired
-    private  JwtService jwtService;
-    @Autowired
+    private JwtService jwtService;
     private UserDetailsService userDetailsService;
-
-   
+    private HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -43,6 +42,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         try {
             final String jwt = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(jwt);
+            System.out.println(userEmail);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

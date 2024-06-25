@@ -13,18 +13,20 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
 @Component
-public class PasswordLessAuthenticationProvider  implements AuthenticationProvider  {
+public class PasswordLessAuthenticationProvider implements AuthenticationProvider {
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException{
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        System.out.println("*************************Slaega********************");
         String username = authentication.getName();
         String credential = (String) authentication.getCredentials();
         boolean valid = false;
         if (isOtp(credential)) {
-            //valid = otpService.validateOtp(username, credential);
+            // valid = otpService.validateOtp(username, credential);
         } else if (isMagicLink(credential)) {
-            //valid = magicLinkService.validateMagicLink(credential);
+            // valid = magicLinkService.validateMagicLink(credential);
         }
 
         if (!valid) {
@@ -37,6 +39,7 @@ public class PasswordLessAuthenticationProvider  implements AuthenticationProvid
 
         return new UsernamePasswordAuthenticationToken(userDetails, credential, authorities);
     }
+
     private boolean isOtp(String credential) {
         // Implémentez votre logique pour déterminer si la credential est OTP
         return credential.matches("\\d{6}"); // Exemple: un OTP de 6 chiffres
@@ -49,7 +52,7 @@ public class PasswordLessAuthenticationProvider  implements AuthenticationProvid
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return  PasswordLessAuthenticationProvider.class.isAssignableFrom(authentication);
+        return PasswordLessAuthenticationProvider.class.isAssignableFrom(authentication);
     }
-    
+
 }
