@@ -22,6 +22,7 @@ import org.slaega.family_secret.repository.UserRepository;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
     private UserRepository userRepository;
 
     @Bean
@@ -40,11 +41,20 @@ public class SecurityConfig {
 
         return httpSecurity.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(ar -> ar.requestMatchers("api/auth").permitAll().requestMatchers("api/auth/**")
-                        .permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(ar -> 
+                ar.requestMatchers("api/auth").permitAll()
+                .requestMatchers("api/auth/**").permitAll()
+                .requestMatchers("api-docs/").permitAll()
+                .requestMatchers("api-docs/**").permitAll()
+                .anyRequest().authenticated())
                 .authenticationProvider(passwordLessAuthenticationProvider())
-                .addFilterBefore(null, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    JWTAuthenticationFilter jwtAuthenticationFilter() {
+        return new JWTAuthenticationFilter();
     }
 
 }

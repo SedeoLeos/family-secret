@@ -2,6 +2,7 @@ package org.slaega.family_secret.security;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,20 +18,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 
-public class JwtAuthentificationFilter extends OncePerRequestFilter {
-    private final HandlerExceptionResolver handlerExceptionResolver;
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    @Autowired
+    private  HandlerExceptionResolver handlerExceptionResolver;
+    @Autowired
+    private  JwtService jwtService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
-
-    public JwtAuthentificationFilter(
-            UserDetailsService userDetailsService,
-            HandlerExceptionResolver handlerExceptionResolver,
-            JwtService jwtService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-        this.handlerExceptionResolver = handlerExceptionResolver;
-    }
+   
 
     @Override
     protected void doFilterInternal(
