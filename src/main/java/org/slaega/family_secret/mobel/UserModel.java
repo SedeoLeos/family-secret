@@ -17,7 +17,7 @@ import lombok.Data;
 @Entity
 @Table(name = "users")
 @Data
-public class UserMobel {
+public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
