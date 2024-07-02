@@ -38,7 +38,7 @@ public class DiscussionController {
     
 
     @GetMapping(":id")
-    public Optional<DiscussionDto> findOne(@RequestParam(name = "id") String id) {
+    public Optional<DiscussionDto> findOne(@PathVariable(name = "id") String id) {
         return this.discussionService.findById(id);
     }
 

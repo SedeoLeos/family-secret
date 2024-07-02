@@ -14,6 +14,8 @@ import org.slaega.family_secret.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class MessageServiceImpl implements MessageService {
     @Autowired
@@ -25,10 +27,11 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageDto create(RequestMessageDto message) {
-
-        Optional<DiscussionDto> discussionDto = this.discussionService.findById(message.getDiscussionId());
+        DiscussionDto discussionDto = this.discussionService.findById(message.getDiscussionId()).orElseThrow(
+                () -> new EntityNotFoundException(
+                        "Discussion not found with id: " + message.getDiscussionId()));
         MessageDto messageDto = messageMapper.postToRequest(message);
-        messageDto.setDiscussionDto(discussionDto.get());
+        messageDto.setDiscussionDto(discussionDto);
         MessageModel messageModel = messageMapper.toEntity(messageDto);
         return messageMapper.toDto(this.messageRepository.save(messageModel));
     }

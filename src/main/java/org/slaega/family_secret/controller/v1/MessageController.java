@@ -18,6 +18,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -37,7 +38,7 @@ public class MessageController {
     }
 
     @GetMapping(":id")
-    public Optional<MessageDto> findOne(@RequestParam(name = "id") String id) {
+    public Optional<MessageDto> findOne(@PathVariable(name = "id") String id) {
         return this.messageService.findOne(id);
     }
 
@@ -47,12 +48,12 @@ public class MessageController {
     }
 
     @PutMapping(":id")
-    public MessageDto update(@RequestParam(name = "id") String id,@RequestBody @Valid RequestMessageDto requestMessageDto) {
+    public MessageDto update(@PathVariable(name = "id") String id,@RequestBody @Valid RequestMessageDto requestMessageDto) {
         return this.messageService.update(id,requestMessageDto);
     }
 
     @DeleteMapping(":id")
-    public void delete(@RequestParam(name = "id") String id) {
+    public void delete(@PathVariable(name = "id") String id) {
         this.messageService.deleteById(id);
     }
 }

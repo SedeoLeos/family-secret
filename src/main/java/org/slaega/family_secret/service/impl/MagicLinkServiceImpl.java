@@ -8,7 +8,12 @@ import org.slaega.family_secret.service.MagicLinkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 @Service
+@Data
+@AllArgsConstructor
 public class MagicLinkServiceImpl implements MagicLinkService {
     @Autowired
     private MagicLinkRepository magicLinkRepository;
