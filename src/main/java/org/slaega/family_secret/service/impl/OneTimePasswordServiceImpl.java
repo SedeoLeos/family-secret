@@ -8,13 +8,14 @@ import org.slaega.family_secret.mobel.OneTimePasswordModel;
 import org.slaega.family_secret.repository.MagicLinkRepository;
 import org.slaega.family_secret.repository.OneTimePasswordRepository;
 import org.slaega.family_secret.service.OneTimePasswordService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 @Service
 public class OneTimePasswordServiceImpl implements OneTimePasswordService {
-
+    @Autowired
     private OneTimePasswordRepository oneTimePasswordRepository;
 
     private OneTimePasswordModel generateOTP(String action, String userId) {
@@ -23,7 +24,7 @@ public class OneTimePasswordServiceImpl implements OneTimePasswordService {
         OneTimePasswordModel oneTimePasswordModel = new OneTimePasswordModel();
         oneTimePasswordModel.setAction(action);
         oneTimePasswordModel.setCode(String.valueOf(code));
-        //oneTimePasswordModel.setUser();
+        // oneTimePasswordModel.setUser();
         return this.create(oneTimePasswordModel);
 
     }

@@ -5,10 +5,12 @@ import java.util.Optional;
 import org.slaega.family_secret.mobel.MagicTokenModel;
 import org.slaega.family_secret.repository.MagicLinkRepository;
 import org.slaega.family_secret.service.MagicLinkService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MagicLinkServiceImpl implements MagicLinkService {
+    @Autowired
     private MagicLinkRepository magicLinkRepository;
 
     @Override

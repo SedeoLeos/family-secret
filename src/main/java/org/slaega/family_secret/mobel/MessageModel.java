@@ -7,11 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
 @Table(name = "messages")
 @Data
+@Builder
 public class MessageModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

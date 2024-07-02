@@ -27,4 +27,7 @@ public class MemberModel {
     private List<MessageModel> messages;
     @ManyToOne
     private DiscussionModel discussion;
+
+    @ManyToOne
+    private UserModel user;
 }
