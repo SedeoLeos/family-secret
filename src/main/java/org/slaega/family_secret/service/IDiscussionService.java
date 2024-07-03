@@ -5,7 +5,7 @@ import org.slaega.family_secret.dto.discussion.RequestDiscussionDto;
 
 import java.util.List;
 import java.util.Optional;
-public interface DiscussionService {
+public interface IDiscussionService {
     DiscussionDto create(RequestDiscussionDto requestDiscussionDto);
     DiscussionDto update(String id, RequestDiscussionDto requestDiscussionDto);
     List<DiscussionDto> find();

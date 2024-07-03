@@ -14,7 +14,8 @@ public class FamilySecretApplication implements WebMvcConfigurer {
 		SpringApplication.run(FamilySecretApplication.class, args);
 	}
 
-	@Override
+	@SuppressWarnings("null")
+    @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.addPathPrefix("api", 
             c -> AnnotatedElementUtils.hasAnnotation(c, RestController.class));

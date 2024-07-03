@@ -5,7 +5,7 @@ import org.slaega.family_secret.dto.message.MessageDto;
 import java.util.Optional;
 import java.util.List;
 
-public interface MessageService {
+public interface IMessageService {
     MessageDto create(RequestMessageDto message);
     Optional<MessageDto> findOne(String id);
     List<MessageDto> find();

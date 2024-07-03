@@ -1,6 +1,11 @@
 package org.slaega.family_secret.mobel;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,4 +29,9 @@ public class DiscussionModel {
     private List<MemberModel> members;
     @OneToMany
     private List<MessageModel> messages;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

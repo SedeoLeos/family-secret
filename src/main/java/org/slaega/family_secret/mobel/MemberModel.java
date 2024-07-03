@@ -1,7 +1,10 @@
 package org.slaega.family_secret.mobel;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.slaega.family_secret.enums.DiscussionAccess;
 
 import jakarta.persistence.Column;
@@ -30,4 +33,9 @@ public class MemberModel {
 
     @ManyToOne
     private UserModel user;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

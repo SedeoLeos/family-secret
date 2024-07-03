@@ -9,19 +9,19 @@ import org.slaega.family_secret.dto.message.RequestMessageDto;
 import org.slaega.family_secret.mappers.MessageMapper;
 import org.slaega.family_secret.mobel.MessageModel;
 import org.slaega.family_secret.repository.MessageRepository;
-import org.slaega.family_secret.service.DiscussionService;
-import org.slaega.family_secret.service.MessageService;
+import org.slaega.family_secret.service.IDiscussionService;
+import org.slaega.family_secret.service.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
-public class MessageServiceImpl implements MessageService {
+public class MessageService implements IMessageService {
     @Autowired
     private MessageRepository messageRepository;
     @Autowired
-    private DiscussionService discussionService;
+    private IDiscussionService discussionService;
     @Autowired
     private MessageMapper messageMapper;
 

@@ -2,9 +2,8 @@ package org.slaega.family_secret.controller.v1;
 
 import org.slaega.family_secret.dto.message.MessageDto;
 import org.slaega.family_secret.dto.message.RequestMessageDto;
-import org.slaega.family_secret.service.MessageService;
+import org.slaega.family_secret.service.IMessageService;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 @Data
 public class MessageController {
     @Autowired
-    private MessageService messageService;
+    private IMessageService messageService;
 
     @PostMapping
     public MessageDto create(@RequestBody @Valid RequestMessageDto requestMessageDto) {

@@ -7,28 +7,39 @@ import org.slaega.family_secret.dto.discussion.DiscussionDto;
 import org.slaega.family_secret.dto.discussion.RequestDiscussionDto;
 import org.slaega.family_secret.mappers.DiscussionMapper;
 import org.slaega.family_secret.mobel.DiscussionModel;
+import org.slaega.family_secret.mobel.MemberModel;
 import org.slaega.family_secret.repository.DiscussionRepository;
-import org.slaega.family_secret.service.DiscussionService;
+import org.slaega.family_secret.repository.MemberRepository;
+import org.slaega.family_secret.service.IDiscussionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 @Service
-public class DiscussionServiceImpl implements DiscussionService {
+public class DiscussionService implements IDiscussionService {
+
+    private final DiscussionRepository discussionRepository;
+    private final DiscussionMapper discussionMapper;
+    private final MemberRepository memberRepository;
+
     @Autowired
-    private DiscussionRepository discussionRepository;
-   @Autowired
-    private DiscussionMapper discussionMapper;
+    public DiscussionService(DiscussionMapper discussionMapper, DiscussionRepository discussionRepository,
+            MemberRepository memberRepository) {
+        this.discussionMapper = discussionMapper;
+        this.discussionRepository = discussionRepository;
+        this.memberRepository = memberRepository;
+    }
 
     @Override
     public DiscussionDto create(RequestDiscussionDto requestDiscussionDto) {
-        DiscussionDto discussionDto = this.discussionMapper.requestToDto(requestDiscussionDto);
-        DiscussionModel discussionModel = this.discussionMapper.toEntity(discussionDto);
+        List<MemberModel> memberModels = this.memberRepository.findAllById(requestDiscussionDto.getMembersId());
+        DiscussionModel discussionModel = this.discussionMapper.toEntity(requestDiscussionDto);
+        discussionModel.setMembers(memberModels);
         return this.discussionMapper.toDto(this.discussionRepository.save(discussionModel));
     }
 
     @Override
     public DiscussionDto update(String id, RequestDiscussionDto requestDiscussionDto) {
-        DiscussionDto discussionDto = this.discussionMapper.requestToDto(requestDiscussionDto);
-        DiscussionModel discussionModel = this.discussionMapper.toEntity(discussionDto);
+        DiscussionModel discussionModel = this.discussionMapper.toEntity(requestDiscussionDto);
         return this.discussionMapper.toDto(this.discussionRepository.save(discussionModel));
     }
 
@@ -51,5 +62,4 @@ public class DiscussionServiceImpl implements DiscussionService {
         return Optional.empty();
 
     }
-
 }

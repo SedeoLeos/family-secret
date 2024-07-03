@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import org.slaega.family_secret.mobel.UserModel;
 import org.slaega.family_secret.repository.UserRepository;
-import org.slaega.family_secret.service.UserService;
+import org.slaega.family_secret.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
 

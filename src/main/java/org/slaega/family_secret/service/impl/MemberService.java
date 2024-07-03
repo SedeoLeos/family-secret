@@ -8,19 +8,19 @@ import org.slaega.family_secret.dto.member.RequestMemberDto;
 import org.slaega.family_secret.mappers.MemberMapper;
 import org.slaega.family_secret.mobel.MemberModel;
 import org.slaega.family_secret.repository.MemberRepository;
-import org.slaega.family_secret.service.MemberService;
+import org.slaega.family_secret.service.IMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MemberServiceImpl implements MemberService {
+public class MemberService implements IMemberService {
 
     
     private final MemberRepository memberRepository;
     private final MemberMapper memberMapper;
     
     @Autowired
-    public MemberServiceImpl(MemberRepository memberRepository, MemberMapper memberMapper) {
+    public MemberService(MemberRepository memberRepository, MemberMapper memberMapper) {
         this.memberMapper = memberMapper;
         this.memberRepository = memberRepository;
     }
@@ -60,7 +60,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void deleteById(String id) {
-        this.memberRepository.deleteById(id);
+       this.memberRepository.deleteById(id);
     }
+
+    
+
+    
 
 }

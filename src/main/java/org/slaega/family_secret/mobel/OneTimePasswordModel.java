@@ -2,6 +2,8 @@ package org.slaega.family_secret.mobel;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.Column;
@@ -13,6 +15,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 @Entity
 @Table(name = "one-time-password")
 @Data
@@ -30,9 +33,10 @@ public class OneTimePasswordModel {
     @Column
     private LocalDateTime expiresAt;
 
-    @Column
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @OneToOne
     private UserModel user;
