@@ -33,6 +33,8 @@ public class UserModel {
     private String email;
     @Column
     private LocalDateTime birthday;
+    @Column
+    private Boolean verified;
 
     @OneToMany
     private List<MemberModel> members;

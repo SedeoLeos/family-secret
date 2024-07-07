@@ -18,11 +18,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.slaega.family_secret.util.JwtUtil;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
-    private JwtService jwtService;
+    private JwtUtil jwtUtil;
     private UserDetailsService userDetailsService;
     private HandlerExceptionResolver handlerExceptionResolver;
 
@@ -41,7 +42,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
-            final String userEmail = jwtService.extractUsername(jwt);
+            final String userEmail = jwtUtil.getSubject(jwt);
             System.out.println(userEmail);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -49,7 +50,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
+                if (jwtUtil.isTokenValid(jwt, userEmail)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

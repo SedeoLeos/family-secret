@@ -1,6 +1,7 @@
 package org.slaega.family_secret.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,12 +20,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Arrays;
 
 import org.slaega.family_secret.repository.UserRepository;
+import org.slaega.family_secret.util.JwtUtil;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Autowired
     private UserRepository userRepository;
+
+    @Value("jwt.access.expirate")
+    Long expire;
+    @Value("jwt.access.secret")
+    String secret;
 
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -63,7 +70,8 @@ public class SecurityConfig {
     JWTAuthenticationFilter jwtAuthenticationFilter() {
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter();
         jwtAuthenticationFilter.setUserDetailsService(userDetailsService());
-        jwtAuthenticationFilter.setJwtService(new JwtService());
+        
+        jwtAuthenticationFilter.setJwtUtil(new JwtUtil(secret,expire));
         return jwtAuthenticationFilter;
     }
 

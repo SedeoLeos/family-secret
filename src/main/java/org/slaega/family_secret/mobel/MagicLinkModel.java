@@ -2,6 +2,7 @@ package org.slaega.family_secret.mobel;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.Column;
@@ -34,7 +35,7 @@ public class MagicLinkModel {
     private LocalDateTime expiresAt;
 
     @Column
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
 }
