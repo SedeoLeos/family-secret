@@ -32,6 +32,8 @@ public class UserModel {
     @Column
     private String email;
     @Column
+    private String role;
+    @Column
     private LocalDateTime birthday;
     @Column
     private Boolean verified;

@@ -2,17 +2,19 @@ package org.slaega.family_secret.mobel;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.CreatedDate;
-
+import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "refresh")
+@Data
 public class RefreshModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,11 +22,14 @@ public class RefreshModel {
     
     @Column
     private String token;
+
+    @ManyToOne
+    private UserModel user;
    
     @Column
     private LocalDateTime expiresAt;
 
     @Column
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

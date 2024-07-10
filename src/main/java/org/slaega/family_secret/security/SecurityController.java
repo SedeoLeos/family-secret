@@ -1,6 +1,9 @@
 package org.slaega.family_secret.security;
 
-import org.slaega.family_secret.dto.LoginWithEmailOrPhone;
+
+import org.slaega.family_secret.dto.auth.SignInRequest;
+import org.slaega.family_secret.dto.auth.SignUpRequest;
+import org.slaega.family_secret.service.impl.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,9 +21,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/auth")
 @AllArgsConstructor
 public class SecurityController {
-    @PostMapping
-    public String login(@RequestBody @Valid  LoginWithEmailOrPhone loginWithEmailOrPhone) {
-       return loginWithEmailOrPhone.getEmail();
+    @Autowired
+    private final AuthService authService;
+    @PostMapping("sign-in")
+    public void signIn(@RequestBody @Valid  SignInRequest singInRequest) {
+    authService.signIn(singInRequest);
+    }
+    @PostMapping("sing-up")
+    public void signUp(@RequestBody @Valid  SignUpRequest singUpRequest) {
+    authService.signUp(singUpRequest);
     }
 
     private void validateOneTimePassword() {
@@ -32,4 +41,6 @@ public class SecurityController {
         // TODO: verifier email and send token and magiclink
 
     }
+
+    
 }

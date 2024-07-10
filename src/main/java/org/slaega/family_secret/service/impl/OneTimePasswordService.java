@@ -4,10 +4,8 @@ package org.slaega.family_secret.service.impl;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import org.slaega.family_secret.mobel.OneTimePasswordModel;
 import org.slaega.family_secret.mobel.UserModel;
-
 import org.slaega.family_secret.repository.OneTimePasswordRepository;
 import org.slaega.family_secret.service.IOneTimePasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +22,10 @@ public class OneTimePasswordService implements IOneTimePasswordService {
     @Autowired
     private OneTimePasswordRepository oneTimePasswordRepository;
 
+
     @Override
     public OneTimePasswordModel create(String action, UserModel user) {
+        deleteAllByUserIdAndAction(user,action);
         SecureRandom secureRandom = new SecureRandom();
         int code = secureRandom.nextInt(999999) + 100000;
         OneTimePasswordModel oneTimePasswordModel = new OneTimePasswordModel();
@@ -41,6 +41,9 @@ public class OneTimePasswordService implements IOneTimePasswordService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Token expired");
         }
         return otp;
+    }
+    public void deleteAllByUserIdAndAction(UserModel user,String action) {
+        oneTimePasswordRepository.deleteAllByUserIdAndAction(user, action);
     }
 
     @Override
