@@ -1,14 +1,15 @@
 package org.slaega.family_secret.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
-import org.slaega.family_secret.mobel.OneTimePasswordModel;
-import org.slaega.family_secret.mobel.UserModel;
+import org.slaega.family_secret.mobel.OneTimePassword;
+import org.slaega.family_secret.mobel.User;
 
 public interface IOneTimePasswordService {
-    OneTimePasswordModel create(String action,UserModel user);
+    OneTimePassword create(String action,User user);
 
-    void deleteById(String id);
+    void deleteById(UUID id);
 
-    Optional<OneTimePasswordModel> getById(String id);
+    Optional<OneTimePassword> getById(UUID id);
 }

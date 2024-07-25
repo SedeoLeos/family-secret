@@ -4,15 +4,16 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-import org.slaega.family_secret.mobel.MagicLinkModel;
-import org.slaega.family_secret.mobel.RefreshModel;
-import org.slaega.family_secret.mobel.UserModel;
+import org.slaega.family_secret.mobel.Refresh;
+import org.slaega.family_secret.mobel.User;
 import org.slaega.family_secret.repository.RefreshRepository;
 import org.slaega.family_secret.service.IRefreshTokenService;
 import org.slaega.family_secret.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 @Service
@@ -26,8 +27,8 @@ public class RefreshTokenService implements IRefreshTokenService {
     private  JwtUtil jwtUtil;
 
     @Override
-    public String create(UserModel user) {
-        RefreshModel refresh = new RefreshModel();
+    public String create(User user) {
+        Refresh refresh = new Refresh();
         refresh.setToken(NanoIdUtils.randomNanoId());
         refresh.setUser(user);
         refresh.setExpiresAt(LocalDateTime.now().plusDays(30));
@@ -39,12 +40,12 @@ public class RefreshTokenService implements IRefreshTokenService {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
        refreshRepository.deleteById(id);
     }
 
     @Override
-    public Optional<RefreshModel> getById(String id) {
+    public Optional<Refresh> getById(UUID id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getById'");
     }

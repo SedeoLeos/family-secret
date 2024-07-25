@@ -2,11 +2,12 @@ package org.slaega.family_secret.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slaega.family_secret.dto.member.MemberDto;
 import org.slaega.family_secret.dto.member.RequestMemberDto;
 import org.slaega.family_secret.mappers.MemberMapper;
-import org.slaega.family_secret.mobel.MemberModel;
+import org.slaega.family_secret.mobel.Member;
 import org.slaega.family_secret.repository.MemberRepository;
 import org.slaega.family_secret.service.IMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class MemberService implements IMemberService {
     }
 
     @Override
-    public Optional<MemberDto> findOne(String id) {
-        Optional<MemberModel> memberModel = this.memberRepository.findById(id);
+    public Optional<MemberDto> findOne(UUID id) {
+        Optional<Member> memberModel = this.memberRepository.findById(id);
         if (memberModel.isPresent()) {
             return Optional.of(this.memberMapper.toDto(memberModel.get()));
         }
@@ -47,11 +48,11 @@ public class MemberService implements IMemberService {
     }
 
     @Override
-    public MemberDto update(String id, RequestMemberDto requestMemberDto) {
-        Optional<MemberModel> memberModel = this.memberRepository.findById(id);
+    public MemberDto update(UUID id, RequestMemberDto requestMemberDto) {
+        Optional<Member> memberModel = this.memberRepository.findById(id);
         if (memberModel.isPresent()) {
             MemberDto memberDto = this.memberMapper.requestToResponse(requestMemberDto);
-            MemberModel memberModel2 = this.memberMapper.toEntity(memberDto);
+            Member memberModel2 = this.memberMapper.toEntity(memberDto);
             memberModel2 = this.memberRepository.save(memberModel2);
             return this.memberMapper.toDto(memberModel2);
         }
@@ -59,7 +60,7 @@ public class MemberService implements IMemberService {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
        this.memberRepository.deleteById(id);
     }
 

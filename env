@@ -6,3 +6,4 @@ DATABASE_NAME=family-secret
 APP_PORT=3000
 APP_NAME=family-secret
 APP_PREFIX=/api
+APP_PORT=3030

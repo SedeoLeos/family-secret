@@ -1,15 +1,17 @@
 package org.slaega.family_secret.service;
 
-import org.slaega.family_secret.dto.message.RequestMessageDto;
-import org.slaega.family_secret.dto.message.MessageDto;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.slaega.family_secret.dto.message.MessageDto;
+import org.slaega.family_secret.dto.message.RequestMessageDto;
 
 public interface IMessageService {
     MessageDto create(RequestMessageDto message);
-    Optional<MessageDto> findOne(String id);
+    Optional<MessageDto> findOne(UUID id);
     List<MessageDto> find();
-    MessageDto update(String id, RequestMessageDto message);
-    void deleteById(String id);
+    MessageDto update(UUID id, RequestMessageDto message);
+    void deleteById(UUID id);
     
 } 

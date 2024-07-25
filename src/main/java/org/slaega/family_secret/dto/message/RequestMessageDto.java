@@ -1,5 +1,7 @@
 package org.slaega.family_secret.dto.message;
 
+import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,6 +9,6 @@ import lombok.Data;
 @Builder
 public class RequestMessageDto {
     String content;
-    String discussionId;
+    UUID discussionId;
     String senderId;
 }

@@ -4,18 +4,22 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.slaega.family_secret.mobel.MagicLinkModel;
-import org.slaega.family_secret.mobel.UserModel;
+import java.util.UUID;
+
+import org.slaega.family_secret.config.JwtConfig;
+import org.slaega.family_secret.mobel.MagicLink;
+import org.slaega.family_secret.mobel.User;
 import org.slaega.family_secret.repository.MagicLinkRepository;
 import org.slaega.family_secret.service.IMagicLinkService;
 import org.slaega.family_secret.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -23,23 +27,22 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MagicLinkService implements IMagicLinkService {
-    @Value("")
-    String secret;
-    @Value("")
-    Long expired;
+    
     private final MagicLinkRepository magicLinkRepository;
     private final JwtUtil jwtUtil;
+    private final JwtConfig jwtConfig;
     @Autowired
-    public MagicLinkService(MagicLinkRepository magicLinkRepository){
+    public MagicLinkService(MagicLinkRepository magicLinkRepository,JwtConfig jwtConfig){
         this.magicLinkRepository = magicLinkRepository;
-        this.jwtUtil = new JwtUtil(secret, expired);
+        this.jwtConfig =jwtConfig;
+        this.jwtUtil = new JwtUtil(jwtConfig.getMagicLinkSecret(), jwtConfig.getMagicLinkExpired());
 
     }
 
     @Override
-    public String create(String action, UserModel user) {
+    public String create(String action, User user) {
         deleteAllByUserIdAndAction(action, user);
-        MagicLinkModel magicLinkModel = new MagicLinkModel();
+        MagicLink magicLinkModel = new MagicLink();
         magicLinkModel.setToken(NanoIdUtils.randomNanoId());
         magicLinkModel.setUser(user);
         magicLinkModel.setAction(action);
@@ -52,19 +55,19 @@ public class MagicLinkService implements IMagicLinkService {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         this.magicLinkRepository.deleteById(id);
     }
 
     @Override
-    public Optional<MagicLinkModel> getById(String id) {
+    public Optional<MagicLink> getById(UUID id) {
         return this.magicLinkRepository.findById(id);
     }
-    public void deleteAllByUserIdAndAction(String action, UserModel user){
+    public void deleteAllByUserIdAndAction(String action, User user){
         magicLinkRepository.deleteAllByUserIdAndAction(user, action);
     }
-    public MagicLinkModel findByTokenAndAction(String token, String action){
-        MagicLinkModel  magicToken = new MagicLinkModel();
+    public MagicLink findByTokenAndAction(String token, String action){
+        MagicLink  magicToken = new MagicLink();
         magicToken.setToken(token);
         magicToken.setAction(action);
           magicToken = magicLinkRepository.findOne(Example.of(magicToken))

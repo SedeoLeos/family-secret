@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.slaega.family_secret.dto.discussion.RequestDiscussionDto;
 import org.slaega.family_secret.dto.discussion.DiscussionDto;
 import org.slaega.family_secret.service.IDiscussionService;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -36,17 +39,17 @@ public class DiscussionController {
     
 
     @GetMapping("{id}")
-    public Optional<DiscussionDto> findOne(@PathVariable(name = "id") String id) {
+    public Optional<DiscussionDto> findOne(@PathVariable(name = "id") UUID id) {
         return this.discussionService.findById(id);
     }
 
     @PutMapping("{id}")
-    public DiscussionDto update(@PathVariable String id, @RequestBody RequestDiscussionDto requestDiscussionDto) {
+    public DiscussionDto update(@PathVariable UUID id, @RequestBody RequestDiscussionDto requestDiscussionDto) {
         return this.discussionService.update(id, requestDiscussionDto);
     }
 
     @DeleteMapping("{id}")
-    public void remove(@PathVariable String id) {
+    public void remove(@PathVariable UUID id) {
         this.discussionService.deleteById(id);
     }
 }

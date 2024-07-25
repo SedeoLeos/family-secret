@@ -1,9 +1,10 @@
 package org.slaega.family_secret.mobel;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,27 +16,28 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "magic-link")
+@Table(name = "one-time-password")
 @Data
-public class MagicLinkModel {
+public class OneTimePassword {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column
-    private String token;
+    private String code;
 
     @Column
     private String action;
 
-    @OneToOne
-    private UserModel user;
-
     @Column
     private LocalDateTime expiresAt;
 
-    @Column
     @CreationTimestamp
     private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @OneToOne
+    private User user;
 
 }

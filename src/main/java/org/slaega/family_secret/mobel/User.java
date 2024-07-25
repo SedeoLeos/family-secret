@@ -2,6 +2,7 @@ package org.slaega.family_secret.mobel;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.slaega.family_secret.enums.Gender;
 
@@ -17,27 +18,27 @@ import lombok.Data;
 @Entity
 @Table(name = "users")
 @Data
-public class UserModel {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
     @Column
     private String lastName;
     @Column
     private String firstName;
     @Column
     private String phone;
-    @Column
+    @Column(nullable=true)
     private Gender gender;
     @Column
     private String email;
-    @Column
+    @Column(nullable=true)
     private String role;
-    @Column
+    @Column(nullable=true)
     private LocalDateTime birthday;
-    @Column
+    @Column(nullable=true)
     private Boolean verified;
 
     @OneToMany
-    private List<MemberModel> members;
+    private List<Member> members;
 }

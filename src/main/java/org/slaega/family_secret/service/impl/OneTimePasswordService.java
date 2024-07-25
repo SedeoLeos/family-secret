@@ -4,8 +4,10 @@ package org.slaega.family_secret.service.impl;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import org.slaega.family_secret.mobel.OneTimePasswordModel;
-import org.slaega.family_secret.mobel.UserModel;
+import java.util.UUID;
+
+import org.slaega.family_secret.mobel.OneTimePassword;
+import org.slaega.family_secret.mobel.User;
 import org.slaega.family_secret.repository.OneTimePasswordRepository;
 import org.slaega.family_secret.service.IOneTimePasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,35 +26,35 @@ public class OneTimePasswordService implements IOneTimePasswordService {
 
 
     @Override
-    public OneTimePasswordModel create(String action, UserModel user) {
+    public OneTimePassword create(String action, User user) {
         deleteAllByUserIdAndAction(user,action);
         SecureRandom secureRandom = new SecureRandom();
         int code = secureRandom.nextInt(999999) + 100000;
-        OneTimePasswordModel oneTimePasswordModel = new OneTimePasswordModel();
+        OneTimePassword oneTimePasswordModel = new OneTimePassword();
         oneTimePasswordModel.setAction(action);
         oneTimePasswordModel.setCode(String.valueOf(code));
         return this.oneTimePasswordRepository.save(oneTimePasswordModel);
     }
-    public OneTimePasswordModel findByUserIdAndCodeAndAction(UserModel user,String code,String action){
-        OneTimePasswordModel example = new OneTimePasswordModel();
+    public OneTimePassword findByUserIdAndCodeAndAction(User user,String code,String action){
+        OneTimePassword example = new OneTimePassword();
 
-        OneTimePasswordModel otp = oneTimePasswordRepository.findOne(Example.of(example)).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Invalid token"));
+        OneTimePassword otp = oneTimePasswordRepository.findOne(Example.of(example)).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Invalid token"));
          if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Token expired");
         }
         return otp;
     }
-    public void deleteAllByUserIdAndAction(UserModel user,String action) {
+    public void deleteAllByUserIdAndAction(User user,String action) {
         oneTimePasswordRepository.deleteAllByUserIdAndAction(user, action);
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         this.oneTimePasswordRepository.deleteById(id);
     }
 
     @Override
-    public Optional<OneTimePasswordModel> getById(String id) {
+    public Optional<OneTimePassword> getById(UUID id) {
         return this.oneTimePasswordRepository.findById(id);
     }
 

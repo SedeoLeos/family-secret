@@ -1,14 +1,15 @@
 package org.slaega.family_secret.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
-import org.slaega.family_secret.mobel.MagicLinkModel;
-import org.slaega.family_secret.mobel.UserModel;
+import org.slaega.family_secret.mobel.MagicLink;
+import org.slaega.family_secret.mobel.User;
 
 public interface IMagicLinkService {
-    String create(String action, UserModel user);
+    String create(String action, User user);
 
-    void deleteById(String id);
+    void deleteById(UUID id);
 
-    Optional<MagicLinkModel> getById(String id);
+    Optional<MagicLink> getById(UUID id);
 }

@@ -2,12 +2,13 @@ package org.slaega.family_secret.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slaega.family_secret.dto.discussion.DiscussionDto;
 import org.slaega.family_secret.dto.message.MessageDto;
 import org.slaega.family_secret.dto.message.RequestMessageDto;
 import org.slaega.family_secret.mappers.MessageMapper;
-import org.slaega.family_secret.mobel.MessageModel;
+import org.slaega.family_secret.mobel.Message;
 import org.slaega.family_secret.repository.MessageRepository;
 import org.slaega.family_secret.service.IDiscussionService;
 import org.slaega.family_secret.service.IMessageService;
@@ -32,15 +33,15 @@ public class MessageService implements IMessageService {
                         "Discussion not found with id: " + message.getDiscussionId()));
         MessageDto messageDto = messageMapper.postToRequest(message);
         messageDto.setDiscussionDto(discussionDto);
-        MessageModel messageModel = messageMapper.toEntity(messageDto);
+        Message messageModel = messageMapper.toEntity(messageDto);
         return messageMapper.toDto(this.messageRepository.save(messageModel));
     }
 
     @Override
-    public Optional<MessageDto> findOne(String id) {
-        Optional<MessageModel> messageModel = this.messageRepository.findById(id);
-        if (messageModel.isPresent()) {
-            return Optional.of(messageMapper.toDto(messageModel.get()));
+    public Optional<MessageDto> findOne(UUID id) {
+        Optional<Message> message = this.messageRepository.findById(id);
+        if (message.isPresent()) {
+            return Optional.of(messageMapper.toDto(message.get()));
         }
         return Optional.empty();
     }
@@ -51,19 +52,19 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public MessageDto update(String id, RequestMessageDto message) {
-        MessageModel messageModel = this.messageRepository.findById(id)
+    public MessageDto update(UUID id, RequestMessageDto message) {
+        Message messageModel = this.messageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("invalid id"));
         MessageDto messageDto = messageMapper.postToRequest(message);
 
-        MessageModel messageModel2 = messageMapper.toEntity(messageDto);
+        Message messageModel2 = messageMapper.toEntity(messageDto);
         messageModel2.setDiscussion(messageModel.getDiscussion());
         return messageMapper.toDto(this.messageRepository.save(messageModel2));
 
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(UUID id) {
         this.messageRepository.deleteById(id);
     }
 

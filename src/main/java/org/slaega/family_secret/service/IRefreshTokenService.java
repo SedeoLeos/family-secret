@@ -1,15 +1,15 @@
 package org.slaega.family_secret.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
-
-import org.slaega.family_secret.mobel.RefreshModel;
-import org.slaega.family_secret.mobel.UserModel;
+import org.slaega.family_secret.mobel.Refresh;
+import org.slaega.family_secret.mobel.User;
 
 public interface IRefreshTokenService {
-    String create(UserModel user);
+    String create(User user);
 
-    void deleteById(String id);
+    void deleteById(UUID id);
 
-    Optional<RefreshModel> getById(String id);
+    Optional<Refresh> getById(UUID id);
 }

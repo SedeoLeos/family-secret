@@ -1,5 +1,6 @@
 package org.slaega.family_secret.dto.discussion;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +16,5 @@ public class RequestDiscussionDto {
     @NotNull(message = "Members ID list cannot be null")
     @NotEmpty(message = "Members ID list cannot be empty")
     @Size(min = 1, message = "Members ID list must contain at least one member")
-    private List<String> membersId;
+    private List<UUID> membersId;
 }
