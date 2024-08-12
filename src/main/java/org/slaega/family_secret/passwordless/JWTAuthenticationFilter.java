@@ -3,6 +3,7 @@ package org.slaega.family_secret.passwordless;
 import java.io.IOException;
 
 import org.slaega.family_secret.mobel.User;
+import org.slaega.family_secret.passwordless.util.JwtUtil;
 import org.slaega.family_secret.repository.UserRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

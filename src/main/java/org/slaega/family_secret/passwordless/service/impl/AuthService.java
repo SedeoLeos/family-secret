@@ -1,21 +1,20 @@
 package org.slaega.family_secret.passwordless.service.impl;
 
+import org.slaega.family_secret.exception.ApiExceptionHandler;
 import org.slaega.family_secret.mobel.User;
 import org.slaega.family_secret.passwordless.config.JwtConfig;
 import org.slaega.family_secret.passwordless.dto.*;
 import org.slaega.family_secret.passwordless.mappers.AuthMapper;
 import org.slaega.family_secret.passwordless.model.AuthUser;
 import org.slaega.family_secret.passwordless.repository.AuthUserRepository;
-import org.slaega.family_secret.passwordless.util.Action;
-import org.slaega.family_secret.passwordless.util.JwtPayload;
-import org.slaega.family_secret.passwordless.util.JwtResponse;
-import org.slaega.family_secret.passwordless.util.JwtUtil;
+import org.slaega.family_secret.passwordless.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +41,7 @@ public class AuthService {
 
     public void signUp(SignUpRequest signUpRequest) {
         AuthUser existingAuthUser = authUserRepository.findByEmail(signUpRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"));
+                .orElseThrow(() ->  new ApiExceptionHandler(List.of(AuthErrors.USER_NOT_FOUND),HttpStatus.UNAUTHORIZED));
 
         AuthUser authUser = authMapper.toEntity(signUpRequest);
         authUser = authUserRepository.save(authUser);
@@ -64,7 +63,7 @@ public class AuthService {
     public void resendVerificationEmail(ResendVerificationEmailRequest resendVerificationEmailRequest) throws ResponseStatusException {
         AuthUser user = this.authUserRepository.findByEmail(resendVerificationEmailRequest.getEmail()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, ""));
         if (user.getVerified()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "");
+            throw new ApiExceptionHandler(List.of(AuthErrors.USER_ALREADY_VERIFIED),HttpStatus.UNAUTHORIZED);
         }
         String code = oneTimePasswordService.create(Action.EMAIL_VERIFICATION, user).getCode();
         System.out.println("********* code " + code);
@@ -73,10 +72,10 @@ public class AuthService {
 
     }
 
-    public void signIn(SignInRequest signInRequest) {
+    public void signIn(SignInRequest signInRequest) throws ResponseStatusException {
         Optional<AuthUser> existingUser = authUserRepository.findByEmail(signInRequest.getEmail());
         if (existingUser.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Account don't  exist");
+            throw new ApiExceptionHandler(List.of(AuthErrors.USER_NOT_FOUND),HttpStatus.UNAUTHORIZED);
         }
         String code = oneTimePasswordService.create(Action.LOGIN, existingUser.get()).getCode();
         System.out.println("********* code " + code);
@@ -122,13 +121,24 @@ public class AuthService {
      * @param {Request} req - The Express Request object.
      * @param {Response} res - The Express Response object.
      */
-    public AuthenticationResponse refresh(String token) {
+    public AuthenticationResponse refresh(CreateRefreshRequest createRefreshRequest) {
+        if (createRefreshRequest.getAuthorization() == null &&! createRefreshRequest.getAuthorization().startsWith("Bearer ")) {
+            throw new ApiExceptionHandler(List.of(AuthErrors.INVALID_CREDENTIALS),HttpStatus.UNAUTHORIZED);
+
+        }
+
+        try{
+
+        String token = createRefreshRequest.getAuthorization().substring(7);
         JwtPayload jwtPayload = this.refreshTokenService.verifyRefresh(token);
         AuthUser authUser = this.authUserRepository
                 .findById(jwtPayload.authId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() ->  new ApiExceptionHandler(List.of(AuthErrors.INVALID_REFRESH_TOKEN),HttpStatus.UNAUTHORIZED));
         this.refreshTokenService.deleteRefreshToken(token);
         return generateAuthenticationTokens(authUser);
+        } catch (Exception exception) {
+            throw new ApiExceptionHandler(List.of(AuthErrors.INVALID_REFRESH_TOKEN),HttpStatus.UNAUTHORIZED);
+        }
     }
     /**
      * Handles user logout.

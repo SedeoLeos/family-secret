@@ -7,10 +7,10 @@ import org.slaega.family_secret.passwordless.service.impl.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -61,8 +61,10 @@ public class AuthController {
     }
 
     @PostMapping("refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(@RequestBody @Valid SignUpRequest singUpRequest) {
-        AuthenticationResponse authenticationResponse=authService.refresh("singUpRequest");
+    public ResponseEntity<AuthenticationResponse> refresh(@RequestHeader Map<String,String>  headers) {
+        CreateRefreshRequest refreshRequest = new CreateRefreshRequest();
+        refreshRequest.setAuthorization(headers.get("Authorization"));
+        AuthenticationResponse authenticationResponse= authService.refresh(refreshRequest);
         return  ResponseEntity.status(HttpStatus.OK).body(authenticationResponse);
 
     }

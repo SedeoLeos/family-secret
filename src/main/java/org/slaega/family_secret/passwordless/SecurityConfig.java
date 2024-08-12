@@ -1,5 +1,7 @@
 package org.slaega.family_secret.passwordless;
 
+import org.slaega.family_secret.passwordless.config.JwtConfig;
+import org.slaega.family_secret.passwordless.util.Action;
 import org.slaega.family_secret.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -52,8 +54,7 @@ public class SecurityConfig {
     JWTAuthenticationFilter jwtAuthenticationFilter() {
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter();
         jwtAuthenticationFilter.setUserRepository(userRepository);
-
-        jwtAuthenticationFilter.setJwtUtil(new JwtUtil(jwtConfig.getAccessSecret(), jwtConfig.getMagicLinkExpired()));
+        jwtAuthenticationFilter.setJwtUtil(jwtConfig.jwtUtil(Action.ACCESS));
         return jwtAuthenticationFilter;
     }
 

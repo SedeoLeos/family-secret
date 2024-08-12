@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 
+import org.slaega.family_secret.exception.ApiExceptionHandler;
 import org.slaega.family_secret.passwordless.config.JwtConfig;
 
 import org.slaega.family_secret.passwordless.dto.VerifyMagicLinkRequest;
@@ -17,6 +18,7 @@ import org.slaega.family_secret.passwordless.repository.MagicLinkRepository;
 import org.slaega.family_secret.passwordless.repository.OneTimePasswordRepository;
 import org.slaega.family_secret.passwordless.service.IMagicLinkService;
 import org.slaega.family_secret.passwordless.util.Action;
+import org.slaega.family_secret.passwordless.util.AuthErrors;
 import org.slaega.family_secret.passwordless.util.JwtFactoryMagicLink;
 
 import org.slaega.family_secret.passwordless.util.JwtUtil;
@@ -27,10 +29,7 @@ import org.springframework.web.ErrorResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Data
@@ -47,7 +46,7 @@ public class MagicLinkService implements IMagicLinkService {
             MagicLinkRepository magicLinkRepository,
             AuthUserRepository authUserRepository,
             OneTimePasswordRepository oneTimePasswordRepository,
-            JwtFactoryMagicLink jwtFactoryMagicLink)  {
+            JwtFactoryMagicLink jwtFactoryMagicLink) {
         this.magicLinkRepository = magicLinkRepository;
         this.authUserRepository = authUserRepository;
         this.oneTimePasswordRepository = oneTimePasswordRepository;
@@ -76,7 +75,7 @@ public class MagicLinkService implements IMagicLinkService {
     }
 
     @Override
-    public AuthUser verifyAccount(VerifyMagicLinkRequest request) throws ResponseStatusException {
+    public AuthUser verifyAccount(VerifyMagicLinkRequest request) throws ApiExceptionHandler {
         AuthUser authUser = verifyMagicLink(request.getToken(), Action.EMAIL_VERIFICATION);
         authUser.setVerified(true);
         return authUserRepository.save(authUser);
@@ -84,33 +83,37 @@ public class MagicLinkService implements IMagicLinkService {
 
 
     @Override
-    public AuthUser verifyLogin(VerifyMagicLinkRequest request) throws ResponseStatusException {
+    public AuthUser verifyLogin(VerifyMagicLinkRequest request) throws ApiExceptionHandler {
         return verifyMagicLink(request.getToken(), Action.LOGIN);
     }
 
 
-    private AuthUser verifyMagicLink(String token, Action action) throws ResponseStatusException {
+    private AuthUser verifyMagicLink(String token, Action action) throws ApiExceptionHandler {
         JwtUtil jwtUtil = jwtFactoryMagicLink.getJwtUtil(action);
+        try {
+            if (jwtUtil.isTokenExpired(token)) {
+                throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            String magicToken = jwtUtil.getSubject(token);
+            UUID authId = jwtUtil.extractClaim(token, claims -> UUID.fromString(claims.get("auth_id", String.class)));
 
-        if(jwtUtil.isTokenExpired(token)){
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,"");
+            MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId, magicToken, action).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+            magicLinkRepository.deleteByAuthIdAndAction(authId, action);
+            oneTimePasswordRepository.deleteByAuthIdAndAction(authId, action);
+
+            if (magicLink.getExpiresAt().before(new Date())) {
+                throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            AuthUser authUser = authUserRepository.findById(magicLink.getAuth().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+            if (action == Action.EMAIL_VERIFICATION && authUser.getVerified()) {
+                throw new ApiExceptionHandler(List.of(AuthErrors.USER_ALREADY_VERIFIED), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            return authUser;
+
+        } catch (Exception e) {
+            throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        String magicToken = jwtUtil.getSubject(token);
-        UUID authId =  jwtUtil.extractClaim(token, claims -> UUID.fromString(claims.get("auth_id", String.class)));
-
-        MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId, magicToken, action).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-
-        magicLinkRepository.deleteByAuthIdAndAction(authId, action);
-        oneTimePasswordRepository.deleteByAuthIdAndAction(authId, action);
-
-        if (magicLink.getExpiresAt().before(new Date())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-        AuthUser authUser = authUserRepository.findById(magicLink.getAuth().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        if (action == Action.EMAIL_VERIFICATION  && authUser.getVerified()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-        return authUser;
     }
 
 

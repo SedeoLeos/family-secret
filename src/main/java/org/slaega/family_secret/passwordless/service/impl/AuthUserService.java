@@ -1,6 +1,4 @@
 package org.slaega.family_secret.passwordless.service.impl;
-
-import org.slaega.family_secret.mobel.User;
 import org.slaega.family_secret.passwordless.model.AuthUser;
 import org.slaega.family_secret.passwordless.repository.AuthUserRepository;
 import org.slaega.family_secret.passwordless.service.IAuthUserService;

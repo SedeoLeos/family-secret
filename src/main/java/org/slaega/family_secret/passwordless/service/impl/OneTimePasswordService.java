@@ -1,6 +1,7 @@
 package org.slaega.family_secret.passwordless.service.impl;
 
 
+import org.slaega.family_secret.exception.ApiExceptionHandler;
 import org.slaega.family_secret.passwordless.config.OneTimePasswordFactoryExpire;
 import org.slaega.family_secret.passwordless.dto.VerifyOTPRequest;
 import org.slaega.family_secret.passwordless.model.AuthUser;
@@ -15,12 +16,13 @@ import org.slaega.family_secret.passwordless.util.AuthErrors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.security.SecureRandom;
 
+import java.util.Arrays;
 import java.util.Date;
-
+import java.util.List;
 
 
 @Service
@@ -31,10 +33,7 @@ public class OneTimePasswordService implements IOneTimePasswordService {
     private final OneTimePasswordFactoryExpire oneTimePasswordFactoryExpire;
 
     @Autowired
-    public OneTimePasswordService(
-            OneTimePasswordRepository oneTimePasswordRepository,
-            AuthUserRepository authUserRepository,
-            MagicLinkRepository magicLinkRepository, OneTimePasswordFactoryExpire oneTimePasswordFactoryExpire) {
+    public OneTimePasswordService(OneTimePasswordRepository oneTimePasswordRepository, AuthUserRepository authUserRepository, MagicLinkRepository magicLinkRepository, OneTimePasswordFactoryExpire oneTimePasswordFactoryExpire) {
 
         this.oneTimePasswordRepository = oneTimePasswordRepository;
         this.authUserRepository = authUserRepository;
@@ -57,7 +56,7 @@ public class OneTimePasswordService implements IOneTimePasswordService {
     }
 
     @Override
-    public AuthUser verifyAccount(VerifyOTPRequest request) throws ResponseStatusException {
+    public AuthUser verifyAccount(VerifyOTPRequest request) throws ApiExceptionHandler {
         AuthUser authUser = verifyOTP(request.getCode(), Action.EMAIL_VERIFICATION, request.getEmail());
         authUser.setVerified(true);
         return authUserRepository.save(authUser);
@@ -65,26 +64,24 @@ public class OneTimePasswordService implements IOneTimePasswordService {
     }
 
     @Override
-    public AuthUser verifyLogin(VerifyOTPRequest request) throws ResponseStatusException {
+    public AuthUser verifyLogin(VerifyOTPRequest request) throws ApiExceptionHandler {
         return verifyOTP(request.getCode(), Action.LOGIN, request.getEmail());
     }
 
-    private AuthUser verifyOTP(String code, Action action, String email) throws ResponseStatusException {
-        AuthUser authUser = authUserRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token"));
+    private AuthUser verifyOTP(String code, Action action, String email) throws ApiExceptionHandler {
+        AuthUser authUser = authUserRepository.findByEmail(email).orElseThrow(() -> new ApiExceptionHandler(List.of(AuthErrors.INVALID_TOKEN), HttpStatus.UNAUTHORIZED));
 
-        OneTimePassword otp = oneTimePasswordRepository.findFirstByAuthIdAndActionAndCode(authUser.getId(), action, code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+        OneTimePassword otp = oneTimePasswordRepository.findFirstByAuthIdAndActionAndCode(authUser.getId(), action, code).orElseThrow(() -> new ApiExceptionHandler(List.of(AuthErrors.INVALID_CREDENTIALS), HttpStatus.UNAUTHORIZED));
 
         oneTimePasswordRepository.deleteByAuthIdAndAction(authUser.getId(), action);
         magicLinkRepository.deleteByAuthIdAndAction(authUser.getId(), action);
 
         if (otp.getExpiresAt().before(new Date())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "OTP expired");
+            throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNAUTHORIZED);
         }
 
         if (action == Action.EMAIL_VERIFICATION && authUser.getVerified()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, AuthErrors.INVALID_CREDENTIALS.getMessage());
+            throw new ApiExceptionHandler(List.of(AuthErrors.INVALID_CREDENTIALS), HttpStatus.UNAUTHORIZED);
         }
 
         return authUser;

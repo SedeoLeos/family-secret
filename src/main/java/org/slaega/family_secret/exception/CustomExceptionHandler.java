@@ -27,12 +27,12 @@ public class CustomExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
         ErrorDetails error = new ErrorDetails();
-        error.setCode(HttpStatus.BAD_REQUEST);
+        error.setCode(HttpStatus.UNPROCESSABLE_ENTITY);
         List<String> collect = ex.getBindingResult().getFieldErrors().stream().filter(Objects::nonNull)
                 .map(m -> (m.getField() + " " + m.getDefaultMessage())).toList();
         List<String> message = new ArrayList<>(collect);
         error.setMessage(message);
-        return new ResponseEntity<>(error, HttpStatus.NOT_EXTENDED);
+        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,15 +46,15 @@ public class CustomExceptionHandler {
         body.put("path", request.getDescription(false).replace("uri=", ""));
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Object> handleAllExceptions(ResponseStatusException ex, WebRequest request) {
+    @ExceptionHandler(ApiExceptionHandler.class)
+    public ResponseEntity<Object> handleAllExceptions(ApiExceptionHandler ex, WebRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status",ex.getBody().getStatus());
-        body.put("error", ex.getStatusCode());
-        body.put("message", ex.getBody().getDetail());
+        body.put("status",ex.getStatus());
+        body.put("error", ex.getStatus().value());
+        body.put("message", ex.getErrorMessages());
         body.put("path", request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(body, ex.getStatusCode());
+        return new ResponseEntity<>(body, ex.getStatus());
     }
 
 

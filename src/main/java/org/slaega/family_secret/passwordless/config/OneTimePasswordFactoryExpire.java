@@ -11,11 +11,11 @@ public class OneTimePasswordFactoryExpire {
     private final Map<Action, Long> expiresInMap = new EnumMap<>(Action.class);
     public OneTimePasswordFactoryExpire(
 
-            @Value("${auth.otp.accountVerificationJwtExpiresIn}") long accountVerificationExpiresIn,
+            @Value("${auth.otp.accountVerificationJwtExpiresIn:300}") long accountVerificationExpiresIn,
 
-            @Value("${auth.otp.emailChangeJwtExpiresIn}") long emailChangeExpiresIn,
+            @Value("${auth.otp.emailChangeJwtExpiresIn:300}") long emailChangeExpiresIn,
 
-            @Value("${auth.otp.loginJwtExpiresIn}") long loginExpiresIn
+            @Value("${auth.otp.loginJwtExpiresIn:300}") long loginExpiresIn
 
     ) throws Exception {
         expiresInMap.put(Action.EMAIL_VERIFICATION,accountVerificationExpiresIn);
