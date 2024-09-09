@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface RefreshRepository extends JpaRepository<Refresh,UUID> {
+public interface RefreshRepository extends JpaRepository<Refresh,String> {
     @Transactional
     void deleteByToken(String token);
 }

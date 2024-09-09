@@ -40,9 +40,9 @@ public class AuthService {
     }
 
     public void signUp(SignUpRequest signUpRequest) {
-        AuthUser existingAuthUser = authUserRepository.findByEmail(signUpRequest.getEmail())
-                .orElseThrow(() ->  new ApiExceptionHandler(List.of(AuthErrors.USER_NOT_FOUND),HttpStatus.UNAUTHORIZED));
-
+        Optional<AuthUser> existingAuthUser = authUserRepository.findByEmail(signUpRequest.getEmail());
+                //.orElseThrow(() ->  new ApiExceptionHandler(List.of(AuthErrors.USER_NOT_FOUND),HttpStatus.UNAUTHORIZED));
+        if(existingAuthUser.isPresent()) throw new ApiExceptionHandler(List.of(AuthErrors.USER_NOT_FOUND),HttpStatus.UNAUTHORIZED);
         AuthUser authUser = authMapper.toEntity(signUpRequest);
         authUser = authUserRepository.save(authUser);
         System.out.println(oneTimePasswordService.create(Action.EMAIL_VERIFICATION, authUser).getCode());
@@ -96,7 +96,7 @@ public class AuthService {
 
 
     private AuthenticationResponse generateAuthenticationTokens(AuthUser authUser) {
-        JwtResponse accessToken = createAccessToken(authUser.getId().toString(), authUser.getRole());
+        JwtResponse accessToken = createAccessToken(authUser.getId(), authUser.getRole());
         JwtResponse refreshToken = refreshTokenService.create(authUser);
         AuthenticationResponse response = new AuthenticationResponse();
         response.setAccessToken(accessToken.jwt());
@@ -124,15 +124,13 @@ public class AuthService {
     public AuthenticationResponse refresh(CreateRefreshRequest createRefreshRequest) {
         if (createRefreshRequest.getAuthorization() == null &&! createRefreshRequest.getAuthorization().startsWith("Bearer ")) {
             throw new ApiExceptionHandler(List.of(AuthErrors.INVALID_CREDENTIALS),HttpStatus.UNAUTHORIZED);
-
         }
 
         try{
-
         String token = createRefreshRequest.getAuthorization().substring(7);
         JwtPayload jwtPayload = this.refreshTokenService.verifyRefresh(token);
         AuthUser authUser = this.authUserRepository
-                .findById(jwtPayload.authId())
+                .findById(jwtPayload.authId().toString())
                 .orElseThrow(() ->  new ApiExceptionHandler(List.of(AuthErrors.INVALID_REFRESH_TOKEN),HttpStatus.UNAUTHORIZED));
         this.refreshTokenService.deleteRefreshToken(token);
         return generateAuthenticationTokens(authUser);

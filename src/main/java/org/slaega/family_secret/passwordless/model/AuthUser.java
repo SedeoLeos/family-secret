@@ -14,7 +14,7 @@ import java.util.UUID;
 public class AuthUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
     @Column
     private String lastName;
     @Column
@@ -29,8 +29,8 @@ public class AuthUser {
     private String role;
     @Column(nullable=true)
     private LocalDateTime birthday;
-    @Column(nullable=true)
-    private Boolean verified;
+    @Column()
+    private Boolean verified =false;
 
 
 

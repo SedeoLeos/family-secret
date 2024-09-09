@@ -17,13 +17,13 @@ import java.util.UUID;
 public class OneTimePassword {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column
     private String code;
 
     @Column
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Action action;
 
     @Column

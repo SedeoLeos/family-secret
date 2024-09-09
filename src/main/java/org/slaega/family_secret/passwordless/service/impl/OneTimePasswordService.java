@@ -1,6 +1,7 @@
 package org.slaega.family_secret.passwordless.service.impl;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.slaega.family_secret.exception.ApiExceptionHandler;
 import org.slaega.family_secret.passwordless.config.OneTimePasswordFactoryExpire;
 import org.slaega.family_secret.passwordless.dto.VerifyOTPRequest;
@@ -26,6 +27,7 @@ import java.util.List;
 
 
 @Service
+@Slf4j
 public class OneTimePasswordService implements IOneTimePasswordService {
     private final OneTimePasswordRepository oneTimePasswordRepository;
     private final AuthUserRepository authUserRepository;
@@ -51,7 +53,7 @@ public class OneTimePasswordService implements IOneTimePasswordService {
         oneTimePassword.setAction(action);
         oneTimePassword.setCode(String.valueOf(code));
         oneTimePassword.setAuth(authUser);
-        oneTimePassword.setExpiresAt(new Date(System.currentTimeMillis() + oneTimePasswordFactoryExpire.expiresIn(action)));
+        oneTimePassword.setExpiresAt(new Date(System.currentTimeMillis() + oneTimePasswordFactoryExpire.expiresIn(action)*1000));
         return this.oneTimePasswordRepository.save(oneTimePassword);
     }
 
@@ -70,9 +72,8 @@ public class OneTimePasswordService implements IOneTimePasswordService {
 
     private AuthUser verifyOTP(String code, Action action, String email) throws ApiExceptionHandler {
         AuthUser authUser = authUserRepository.findByEmail(email).orElseThrow(() -> new ApiExceptionHandler(List.of(AuthErrors.INVALID_TOKEN), HttpStatus.UNAUTHORIZED));
-
+        log.info(oneTimePasswordRepository.findFirstByAuthId(authUser.getId()).toString());
         OneTimePassword otp = oneTimePasswordRepository.findFirstByAuthIdAndActionAndCode(authUser.getId(), action, code).orElseThrow(() -> new ApiExceptionHandler(List.of(AuthErrors.INVALID_CREDENTIALS), HttpStatus.UNAUTHORIZED));
-
         oneTimePasswordRepository.deleteByAuthIdAndAction(authUser.getId(), action);
         magicLinkRepository.deleteByAuthIdAndAction(authUser.getId(), action);
 

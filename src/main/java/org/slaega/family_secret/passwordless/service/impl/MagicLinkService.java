@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.slaega.family_secret.exception.ApiExceptionHandler;
 import org.slaega.family_secret.passwordless.config.JwtConfig;
 
@@ -33,6 +34,7 @@ import java.util.*;
 
 @Service
 @Data
+@Slf4j
 public class MagicLinkService implements IMagicLinkService {
 
     private final MagicLinkRepository magicLinkRepository;
@@ -89,18 +91,19 @@ public class MagicLinkService implements IMagicLinkService {
 
 
     private AuthUser verifyMagicLink(String token, Action action) throws ApiExceptionHandler {
+        log.info("+++++++++++++++++++++++");
         JwtUtil jwtUtil = jwtFactoryMagicLink.getJwtUtil(action);
         try {
             if (jwtUtil.isTokenExpired(token)) {
-                throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
+                throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNAUTHORIZED);
             }
             String magicToken = jwtUtil.getSubject(token);
             UUID authId = jwtUtil.extractClaim(token, claims -> UUID.fromString(claims.get("auth_id", String.class)));
+            log.info("+++++++++++ authId ++++++++++++");
+            MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId.toString(), magicToken, action).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-            MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId, magicToken, action).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-
-            magicLinkRepository.deleteByAuthIdAndAction(authId, action);
-            oneTimePasswordRepository.deleteByAuthIdAndAction(authId, action);
+            magicLinkRepository.deleteByAuthIdAndAction(authId.toString(), action);
+            oneTimePasswordRepository.deleteByAuthIdAndAction(authId.toString(), action);
 
             if (magicLink.getExpiresAt().before(new Date())) {
                 throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -111,8 +114,8 @@ public class MagicLinkService implements IMagicLinkService {
             }
             return authUser;
 
-        } catch (Exception e) {
-            throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (ApiExceptionHandler e) {
+            throw new ApiExceptionHandler(e.getErrorMessages(), e.getStatus());
         }
     }
 

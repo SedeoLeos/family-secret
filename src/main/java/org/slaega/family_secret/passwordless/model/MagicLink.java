@@ -16,13 +16,13 @@ import java.util.UUID;
 public class MagicLink {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column
     private String token;
 
     @Column
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Action action;
 
     @ManyToOne

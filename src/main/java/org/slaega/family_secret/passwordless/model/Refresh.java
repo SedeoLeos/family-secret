@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Refresh {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
     
     @Column
     private String token;

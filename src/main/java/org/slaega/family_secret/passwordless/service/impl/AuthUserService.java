@@ -16,7 +16,7 @@ public class AuthUserService implements IAuthUserService {
 
     @Override
     public Optional<AuthUser> findById(UUID id) {
-        return this.authUserRepository.findById(id);
+        return this.authUserRepository.findById(id.toString());
     }
 
     @Override
@@ -26,7 +26,7 @@ public class AuthUserService implements IAuthUserService {
 
     @Override
     public void deleteById(UUID id) {
-        this.authUserRepository.deleteById(id);
+        this.authUserRepository.deleteById(id.toString());
     }
 
 }

@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MagicLinkRepository extends JpaRepository<MagicLink,UUID> {
+public interface MagicLinkRepository extends JpaRepository<MagicLink,String> {
     @Transactional
-    int deleteByAuthIdAndAction(UUID id, Action action);
-    Optional<MagicLink> findFirstByAuthIdAndTokenAndAction(UUID id,String token,Action action);
+    int deleteByAuthIdAndAction(String id, Action action);
+    Optional<MagicLink> findFirstByAuthIdAndTokenAndAction(String id,String token,Action action);
 }

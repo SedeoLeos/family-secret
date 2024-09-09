@@ -8,9 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface OneTimePasswordRepository extends JpaRepository<OneTimePassword,UUID> {
+public interface OneTimePasswordRepository extends JpaRepository<OneTimePassword,String> {
     @Transactional
-    void deleteByAuthIdAndAction(UUID id,Action action);
-    Optional<OneTimePassword> findFirstByAuthIdAndActionAndCode(UUID id, Action action, String code);
-} 
+    void deleteByAuthIdAndAction(String id,Action action);
+    Optional<OneTimePassword> findFirstByAuthIdAndActionAndCode(String id, Action action, String code);
+    Optional<OneTimePassword> findFirstByAuthId(String id);
+}
  
