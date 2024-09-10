@@ -1,5 +1,10 @@
 package org.slaega.family_secret.passwordless.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slaega.family_secret.passwordless.dto.*;
@@ -59,7 +64,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
 
     }
-
+    @SecurityRequirement(name = "Authorization")
     @PostMapping("refresh")
     public ResponseEntity<AuthenticationResponse> refresh(@RequestHeader Map<String,String>  headers) {
         CreateRefreshRequest refreshRequest = new CreateRefreshRequest();
@@ -69,7 +74,13 @@ public class AuthController {
 
     }
 
+    @SecurityRequirement(name = "Authorization")
+
     @PostMapping("sign-out")
+    @Parameters({
+            @Parameter(name = "Authorization", description = "Access Token", required = true, allowEmptyValue = false, in = ParameterIn.HEADER,  example = "Bearer access_token"),
+            @Parameter(name = "X-Custom-Header", description = "A Custom Header", required = true, allowEmptyValue = false, in = ParameterIn.HEADER,  example = "my header example")
+    })
     public ResponseEntity<AuthenticationResponse> signOut(@RequestBody @Valid SignOut signOut) {
         authService.signOut(signOut);
         return  ResponseEntity.status(HttpStatus.OK).build();

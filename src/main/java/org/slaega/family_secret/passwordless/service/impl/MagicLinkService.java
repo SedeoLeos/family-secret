@@ -3,6 +3,7 @@ package org.slaega.family_secret.passwordless.service.impl;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -68,7 +69,7 @@ public class MagicLinkService implements IMagicLinkService {
         magicLink = this.magicLinkRepository.save(magicLink);
         System.out.println(deleteCount);
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("auth_Id", magicLink.getAuth().getId());
+        extraClaims.put("authId", magicLink.getAuth().getId());
 
         System.out.println("count " + deleteCount);
         String jwt = jwtUtil.generateToken(extraClaims, magicLink.getToken());
@@ -91,19 +92,15 @@ public class MagicLinkService implements IMagicLinkService {
 
 
     private AuthUser verifyMagicLink(String token, Action action) throws ApiExceptionHandler {
-        log.info("+++++++++++++++++++++++");
         JwtUtil jwtUtil = jwtFactoryMagicLink.getJwtUtil(action);
         try {
-            if (jwtUtil.isTokenExpired(token)) {
-                throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNAUTHORIZED);
-            }
-            String magicToken = jwtUtil.getSubject(token);
-            UUID authId = jwtUtil.extractClaim(token, claims -> UUID.fromString(claims.get("auth_id", String.class)));
-            log.info("+++++++++++ authId ++++++++++++");
-            MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId.toString(), magicToken, action).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-            magicLinkRepository.deleteByAuthIdAndAction(authId.toString(), action);
-            oneTimePasswordRepository.deleteByAuthIdAndAction(authId.toString(), action);
+            String authId = jwtUtil.extractClaim(token, claims -> claims.get("authId", String.class));
+            String magicToken = jwtUtil.getSubject(token);
+            MagicLink magicLink = magicLinkRepository.findFirstByAuthIdAndTokenAndAction(authId, magicToken, action).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+            magicLinkRepository.deleteByAuthIdAndAction(authId, action);
+            oneTimePasswordRepository.deleteByAuthIdAndAction(authId, action);
 
             if (magicLink.getExpiresAt().before(new Date())) {
                 throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -116,6 +113,9 @@ public class MagicLinkService implements IMagicLinkService {
 
         } catch (ApiExceptionHandler e) {
             throw new ApiExceptionHandler(e.getErrorMessages(), e.getStatus());
+        }
+        catch (ExpiredJwtException e){
+            throw new ApiExceptionHandler(List.of(AuthErrors.TOKEN_EXPIRED), HttpStatus.UNAUTHORIZED);
         }
     }
 

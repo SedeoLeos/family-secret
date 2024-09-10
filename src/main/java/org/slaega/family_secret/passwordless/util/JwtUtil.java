@@ -2,12 +2,11 @@ package org.slaega.family_secret.passwordless.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
@@ -22,6 +21,7 @@ public class JwtUtil {
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
     private final SecretKey secretKey;
+    @Getter
     private final long tokenExpiration;
     private final String keyType;
 
@@ -32,9 +32,6 @@ public class JwtUtil {
         this.secretKey = null;
         this.tokenExpiration = expire;
         this.keyType = "rsa";
-    }
-    public long getTokenExpiration (){
-        return tokenExpiration;
     }
 
     // Constructeur pour Secret Key
@@ -70,12 +67,8 @@ public class JwtUtil {
 
     private String buildToken(Map<String, Object> extraClaims, String subject) {
         if ("rsa".equalsIgnoreCase(keyType)) {
-            return Jwts.builder()
-                    .setClaims(extraClaims)
-                    .setSubject(subject)
-                    .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
-                    .signWith(privateKey, SignatureAlgorithm.RS256)
+            return Jwts.builder().claims(extraClaims).subject(subject).issuedAt(new Date(System.currentTimeMillis())).expiration(new Date(System.currentTimeMillis() + tokenExpiration))
+                    .signWith(privateKey, Jwts.SIG.RS512)
                     .compact();
         }
         return Jwts.builder().claims().empty().add(extraClaims).and().subject(subject)
@@ -114,7 +107,9 @@ public class JwtUtil {
                     .build().parseSignedClaims(token)
                     .getPayload();
         }
+
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+
     }
 
 
